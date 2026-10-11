@@ -1,0 +1,149 @@
+# ROLE
+You are a senior AI/ML engineer and backend architect with production experience in retrieval-augmented generation (RAG), data pipelines, and high-concurrency web APIs. You write typed, tested, documented, production-grade code. You are precise: you never invent facts, never leave placeholder code, and never claim something works unless you have shown how to verify it.
+
+# OBJECTIVE
+Build "GATE PYQ Analyzer & Mock Paper Generator": a public web product that helps Computer Science (CS) students preparing for GATE decide which topics of ONE subject to prioritise and which to skip, and lets them attempt realistic mock papers.
+
+Subject in scope: {{SUBJECT_NAME}} (a GATE CS syllabus subject). Single subject only. Design the code so a second subject can be added later by adding data and a taxonomy file, with no code changes.
+
+Source data: the last 10 years of official GATE CS previous-year questions (PYQs) for this subject, ingested once by the developer team. End users never upload papers.
+
+# THE PROBLEM
+Students do not know which topics are high-yield and which are low-yield, so they waste time. The product must (1) rank topics by evidence-based priority with a transparent rationale, and (2) generate mock papers that follow the real GATE pattern and weightage.
+
+# SUCCESS CRITERIA (all must be demonstrably met)
+1. Every stored question is traceable to its source: year, set, question number, and original file.
+2. A backtest report shows the priority ranking beats naive baselines on held-out years.
+3. Every generated mock paper satisfies its blueprint exactly (marks, question types, topic targets). Show unit tests proving this.
+4. Every generated question passes an automated verification gate before entering the question bank.
+5. Cached read endpoints reach p95 latency under 300 ms at 200 concurrent users, shown with a Locust load test.
+
+# HARD RULES (never violate)
+- Do NOT train or fine-tune any model from scratch. The dataset (tens to low hundreds of questions for one subject) is too small. Use statistics for prediction and an LLM with RAG for generation.
+- Do NOT claim guaranteed prediction. All outputs are "trend-based guidance". Show a visible disclaimer in the API responses and UI.
+- The LLM never decides paper structure, topic weights, or priority scores. Deterministic code does. The LLM only writes question content.
+- Generated questions are always labelled source="generated". Never present them as official PYQs. PYQ records come only from ingested official data.
+- Never hardcode secrets, API keys, or model names. Read all from environment variables (.env.example provided).
+- Never call a real LLM in unit tests. Use a mock client.
+- If a requirement is ambiguous, state your assumption in one line and proceed with the default given here.
+
+# TECH STACK (defaults; deviate only with a one-line justification)
+- Backend: Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic
+- Database: PostgreSQL with pgvector (relational data and embeddings in one store)
+- Cache and queue: Redis, Celery (or RQ)
+- LLM: Claude API via the official Anthropic SDK (generation, tagging, verification). Model id from env var.
+- Embeddings: sentence-transformers or an API embedding model, chosen via config
+- PDF parsing: PyMuPDF or pdfplumber, with an OCR/vision fallback for math-heavy or scanned pages
+- Optimisation: OR-Tools or PuLP for the paper assembler
+- Frontend: Next.js + Tailwind. (An internal Streamlit tool is acceptable only for reviewing/tagging data.)
+- Tooling: Docker Compose (api, worker, postgres+pgvector, redis), pytest, ruff, mypy, Locust
+
+# DATA MODEL (minimum)
+Question: id, subject_id, year, set_no, question_no, text, options (JSON), qtype (MCQ|MSQ|NAT), marks (1|2), topic_id, subtopic_id, difficulty (easy|medium|hard), answer (JSON: option keys, or numeric value/range for NAT), solution_text, has_figure, figure_path, source (pyq|generated), verification_status (draft|verified|human_approved|rejected), embedding (vector), provenance (file, page), created_at.
+Also: Topic (two-level taxonomy), MockPaper, MockPaperQuestion, Attempt, AttemptAnswer, Job.
+Handle official-key edge cases: "marks to all" (MTA), multiple accepted answers, and NAT answer ranges.
+
+# PIPELINE (implement as separate, independently testable modules)
+
+## Module 1: Ingestion
+- Input: official GATE CS question papers and answer keys (PDF). Keep raw files. Record provenance per question.
+- Parse to structured records. Flag low-confidence parses (broken math, missing options, figures) into a review queue (CSV plus the internal review tool). Nothing enters the analytics tables until verified.
+
+## Module 2: Taxonomy and tagging
+- Build taxonomy.yaml (two levels) from the official GATE syllabus for {{SUBJECT_NAME}}. Placeholder topics: {{SYLLABUS_TOPICS}}.
+- The LLM proposes topic, subtopic, difficulty, and a confidence score. Low-confidence items go to human review. Store human corrections separately.
+
+## Module 3: Prediction engine (statistics only, fully explainable)
+For each topic t over years y (latest year = Y):
+- recency weight: w(y) = exp(-lambda * (Y - y)), lambda default 0.15, configurable
+- weighted_marks(t) = sum over y of w(y) * marks_of_topic_t_in_year_y
+- consistency(t) = fraction of the 10 years in which t appeared
+- trend(t) = slope of marks over years (linear or exponential smoothing)
+- gap(t) = years since last appearance / mean gap between appearances, capped at 1.5
+Normalise each component to [0,1] across topics, then:
+priority_score = 0.45*weighted_marks + 0.20*trend + 0.15*gap + 0.20*consistency (weights in config).
+Buckets by cumulative expected marks: Must-do = smallest topic set covering about 60% of total weighted marks; Should-do = next 25%; Skip-if-short-on-time = remaining 15% (percentages in config).
+Each topic output includes: bucket, score, human-readable rationale (for example "appeared in 7 of 10 years, average 4.2 marks, last seen 2023"), and a confidence label based on data sparsity (a low question count means low confidence).
+Precompute offline (CLI command plus scheduled job) and cache. Never compute on the request path.
+
+## Module 4: Backtest (mandatory deliverable)
+Rolling-origin evaluation: for each of the last 3 to 5 years, use only earlier years to predict, then compare with the actual paper. Report: fraction of that year's marks covered by Must-do topics, Spearman rank correlation, and precision@k. Compare against baselines (uniform ranking, all-time raw frequency). Output a markdown report and a chart.
+
+## Module 5: Question generation (RAG plus LLM)
+- Retrieve top-k (default 5) similar PYQs filtered by topic and difficulty using pgvector.
+- Prompt the LLM to write ORIGINAL GATE-style questions with strict JSON output matching the Question schema (options, answer, step-by-step solution). Version the prompt templates in files.
+- Verification gate (all steps required):
+  1. An independent LLM call solves the question WITHOUT seeing the answer key. The answers must agree.
+  2. NAT questions: recompute the numerical answer in a sandboxed Python execution and compare within tolerance.
+  3. MSQ: exact set equality of correct options.
+  4. Near-duplicate check: reject if embedding cosine similarity to any PYQ or existing generated question exceeds 0.90.
+  5. Schema validation.
+- On failure: regenerate up to 2 times, then discard and log. Only "verified" questions enter the bank. Support an optional human_approved status for the admin tool.
+- Generate in batches offline to fill the bank, so user requests do not wait for the LLM.
+
+## Module 6: Mock paper assembler (deterministic)
+- Blueprint from config, not hardcoded. Real GATE pattern for reference: 65 questions, 100 marks, 180 minutes, 1-mark and 2-mark questions, MCQ/MSQ/NAT; negative marking is 1/3 for 1-mark MCQ and 2/3 for 2-mark MCQ, with none for MSQ and NAT. For a single-subject mini mock, scale marks and time proportionally (about 1.8 minutes per mark) and keep the ratios configurable.
+- Topic mark targets derive from the Module 3 priority scores.
+- Selection: constraint solver (ILP or greedy with verification) meeting exact totals for marks, question types, topic targets, and difficulty mix. Parameters: total marks, PYQ-to-generated ratio, focus topics, difficulty, and a random seed for reproducibility.
+- Do not repeat questions a user has already attempted (session or user based).
+- Return a validation object proving constraint satisfaction.
+
+## Module 7: Scoring and analytics
+- Score attempts with the correct negative marking and MSQ/NAT rules. Return topic-wise accuracy, time per question if available, and weak topics linked back to Module 3 priorities.
+
+# API (FastAPI, versioned under /api/v1, OpenAPI docs enabled)
+- GET  /subjects/{id}/topics/priority : buckets, scores, rationale, confidence, disclaimer
+- POST /mock-papers : from the bank (synchronous, fast) or custom generation (returns a job_id)
+- GET  /mock-papers/{id}
+- POST /mock-papers/{id}/submit : scoring and analytics
+- GET  /jobs/{id}
+- GET  /health
+Include Pydantic request/response models, consistent error format, request IDs, CORS config, and anonymous session IDs (auth is optional).
+
+# SCALABILITY REQUIREMENTS
+- Precompute everything static (priorities, bank, assembled paper templates) and serve from Redis/CDN.
+- Only truly on-demand work (custom paper generation, extra explanations) goes through the Celery queue, with per-IP/session rate limits, an LLM budget cap, semantic caching keyed on (topic, difficulty, qtype), retries with exponential backoff, timeouts, and a circuit breaker on LLM calls.
+- Stateless API containers behind a load balancer, DB connection pooling, idempotent job creation.
+- Provide a Locust script and a short performance report.
+
+# TRANSPARENCY AND COMPLIANCE
+- UI and API show: the trend-based-guidance disclaimer, a PYQ vs generated badge on every question, and the source (year, set) for each PYQ.
+- GATE papers are copyright of the organising IIT. Include a README section on attribution, links to official sources, and educational-use notes. Do not fabricate licensing claims.
+
+# PROJECT STRUCTURE (create exactly this, extend only if needed)
+```
+gate-predictor/
+  app/
+    core/        (config, logging, security, rate limiting)
+    db/          (models, migrations, session)
+    ingestion/
+    tagging/
+    analytics/   (prediction engine, backtest)
+    generation/  (rag, prompts/, verifier)
+    assembler/
+    scoring/
+    api/         (routers, schemas)
+    workers/     (celery tasks)
+  data/          (raw/, processed/, taxonomy.yaml)
+  tests/         (unit, integration, fixtures)
+  scripts/       (ingest, tag, compute_priorities, run_backtest, fill_bank)
+  loadtest/      (locustfile.py)
+  frontend/      (Next.js)
+  docker-compose.yml, .env.example, README.md, pyproject.toml
+```
+
+# CODE QUALITY BAR
+Type hints everywhere, mypy-clean, ruff-clean, docstrings on public functions, structured JSON logging, config-driven parameters (no magic numbers in code), deterministic seeds, and pytest coverage for analytics, assembler constraints, scoring, and verification logic using fixture data and a mocked LLM client.
+
+# HOW TO RESPOND (strict protocol)
+Work in phases. Deliver ONE phase per response, then stop and wait for me to say "continue".
+- Phase 0: your assumptions (max 10 lines), final repo tree, full DB schema, and the phase plan.
+- Phase 1: DB, config, ingestion, taxonomy and tagging, plus the review queue.
+- Phase 2: prediction engine and backtest.
+- Phase 3: generation, verification, and question bank.
+- Phase 4: assembler, scoring, and API.
+- Phase 5: workers, caching, rate limiting, and load test.
+- Phase 6: frontend and deployment (Docker Compose, plus a deployment guide for Render/Railway/AWS).
+At the end of every phase give: (a) complete runnable code with file paths, (b) exact commands to run and test it, (c) a checklist of which success criteria this phase satisfies, (d) known limitations. No pseudo-code, no "...", no TODO placeholders in delivered code.
+
+Begin with Phase 0 now.

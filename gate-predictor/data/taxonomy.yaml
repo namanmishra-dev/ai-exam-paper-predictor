@@ -1,0 +1,152 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Official GATE CS Syllabus: Operating Systems
+# Aligned with the GATE 2024/2025 syllabus published by IIT
+# ─────────────────────────────────────────────────────────────────────────────
+subject:
+  id: operating_systems
+  name: Operating Systems
+  code: CS-OS
+  description: >
+    Operating systems concepts as defined in the GATE CS syllabus:
+    processes, threads, inter-process communication, concurrency and
+    synchronisation, deadlock, CPU and I/O scheduling, memory management
+    and virtual memory, file systems, and system calls.
+
+  topics:
+    # ── 1. System Calls & OS Structure ──────────────────────────────────
+    - id: os_system_calls
+      name: System Calls and OS Structure
+      code: OS-SC
+      subtopics:
+        - id: os_syscall_types
+          name: Types of System Calls (Process, File, Device, Communication)
+          code: OS-SC-TY
+        - id: os_os_structure
+          name: OS Structure (Monolithic, Microkernel, Layered, Modular)
+          code: OS-SC-ST
+        - id: os_modes
+          name: User Mode vs Kernel Mode
+          code: OS-SC-MD
+
+    # ── 2. Processes and Threads ────────────────────────────────────────
+    - id: os_processes_threads
+      name: Processes and Threads
+      code: OS-PT
+      subtopics:
+        - id: os_process_lifecycle
+          name: Process Lifecycle, States, and PCB
+          code: OS-PT-LC
+        - id: os_threads
+          name: Threads (User-level vs Kernel-level, Multithreading Models)
+          code: OS-PT-TH
+        - id: os_ipc
+          name: Inter-Process Communication (Pipes, Shared Memory, Message Passing)
+          code: OS-PT-IPC
+        - id: os_process_creation
+          name: Process Creation (fork, exec, wait)
+          code: OS-PT-CR
+
+    # ── 3. CPU Scheduling ───────────────────────────────────────────────
+    - id: os_cpu_scheduling
+      name: CPU Scheduling
+      code: OS-CS
+      subtopics:
+        - id: os_sched_algos
+          name: Scheduling Algorithms (FCFS, SJF, SRTF, Round Robin, Priority, MLFQ)
+          code: OS-CS-ALG
+        - id: os_sched_criteria
+          name: Scheduling Criteria and Performance Metrics
+          code: OS-CS-CRI
+        - id: os_preemptive_nonpreemptive
+          name: Preemptive vs Non-Preemptive Scheduling
+          code: OS-CS-PN
+
+    # ── 4. Synchronisation ──────────────────────────────────────────────
+    - id: os_synchronization
+      name: Concurrency and Synchronisation
+      code: OS-SY
+      subtopics:
+        - id: os_critical_section
+          name: Critical Section Problem, Peterson's Solution, Hardware Support
+          code: OS-SY-CS
+        - id: os_mutex_semaphore
+          name: Mutex Locks, Semaphores, and Monitors
+          code: OS-SY-MS
+        - id: os_classical_problems
+          name: Classical Synchronisation Problems (Producer-Consumer, Readers-Writers, Dining Philosophers)
+          code: OS-SY-CP
+
+    # ── 5. Deadlocks ───────────────────────────────────────────────────
+    - id: os_deadlocks
+      name: Deadlocks
+      code: OS-DL
+      subtopics:
+        - id: os_deadlock_conditions
+          name: Necessary Conditions and Resource Allocation Graph
+          code: OS-DL-NC
+        - id: os_deadlock_prevention
+          name: Prevention and Avoidance (Banker's Algorithm, Safe State)
+          code: OS-DL-PA
+        - id: os_deadlock_detection
+          name: Detection and Recovery
+          code: OS-DL-DR
+
+    # ── 6. Memory Management ───────────────────────────────────────────
+    - id: os_memory_management
+      name: Memory Management
+      code: OS-MM
+      subtopics:
+        - id: os_contiguous_alloc
+          name: Contiguous Allocation, Fragmentation (Internal/External)
+          code: OS-MM-CA
+        - id: os_paging
+          name: Paging, Page Tables, TLB
+          code: OS-MM-PG
+        - id: os_segmentation
+          name: Segmentation and Segmentation with Paging
+          code: OS-MM-SG
+        - id: os_virtual_memory
+          name: Virtual Memory, Demand Paging, Page Replacement Algorithms
+          code: OS-MM-VM
+        - id: os_thrashing
+          name: Thrashing, Working Set Model, Page Fault Handling
+          code: OS-MM-TH
+
+    # ── 7. File Systems ────────────────────────────────────────────────
+    - id: os_file_systems
+      name: File Systems
+      code: OS-FS
+      subtopics:
+        - id: os_file_concepts
+          name: File Concepts, Access Methods, Directory Structures
+          code: OS-FS-FC
+        - id: os_file_alloc
+          name: File Allocation Methods (Contiguous, Linked, Indexed)
+          code: OS-FS-AL
+        - id: os_free_space
+          name: Free Space Management
+          code: OS-FS-FR
+
+    # ── 8. I/O Systems and Disk Scheduling ─────────────────────────────
+    - id: os_io_systems
+      name: I/O Systems and Disk Scheduling
+      code: OS-IO
+      subtopics:
+        - id: os_io_hardware
+          name: I/O Hardware, Polling, Interrupts, DMA
+          code: OS-IO-HW
+        - id: os_disk_scheduling
+          name: Disk Scheduling Algorithms (FCFS, SSTF, SCAN, C-SCAN, LOOK)
+          code: OS-IO-DS
+
+    # ── 9. Protection and Security ─────────────────────────────────────
+    - id: os_protection_security
+      name: Protection and Security
+      code: OS-PS
+      subtopics:
+        - id: os_access_control
+          name: Access Matrix, ACLs, Capabilities
+          code: OS-PS-AC
+        - id: os_security_threats
+          name: Security Threats (Trojans, Viruses, Worms)
+          code: OS-PS-ST

@@ -1,0 +1,15 @@
+"""Prompt templates package."""
+
+from app.generation.prompts.templates import (
+    GENERATION_SYSTEM_PROMPT,
+    GENERATION_USER_PROMPT_TEMPLATE,
+    SOLVER_SYSTEM_PROMPT,
+    SOLVER_USER_PROMPT_TEMPLATE,
+)
+
+__all__ = [
+    "GENERATION_SYSTEM_PROMPT",
+    "GENERATION_USER_PROMPT_TEMPLATE",
+    "SOLVER_SYSTEM_PROMPT",
+    "SOLVER_USER_PROMPT_TEMPLATE",
+]
