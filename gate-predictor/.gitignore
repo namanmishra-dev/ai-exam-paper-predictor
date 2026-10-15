@@ -1,9 +1,18 @@
-
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
 
 # Virtual environments
 .venv/
 venv/
 env/
+ENV/
 
 # IDE
 .vscode/
@@ -11,8 +20,49 @@ env/
 *.swp
 *.swo
 
-# Environment
+# Environment & secrets
 .env
-.env.local
+.env.*
+!.env.example
 
+# Raw PDFs & Large Data
+data/raw/
+**/data/raw/
 
+# Processed data
+*.csv
+*.parquet
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Node / Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+**/out/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Logs & temporary files
+*.log
+logs/
+
+# Local databases & Redis dump
+*.sqlite
+*.sqlite3
+*.db
+dump.rdb
+celerybeat-schedule*
+
+# Linters & cache
+.ruff_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
