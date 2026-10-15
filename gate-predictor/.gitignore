@@ -25,9 +25,13 @@ ENV/
 .env.*
 !.env.example
 
-# Raw PDFs & Large Data
-data/raw/
-**/data/raw/
+# Raw PDFs & Large Data (allow sample question JSONs, ignore raw PDFs)
+data/raw/*.pdf
+**/data/raw/*.pdf
+data/raw/papers/
+**/data/raw/papers/
+data/raw/answer_keys/
+**/data/raw/answer_keys/
 
 # Processed data
 *.csv

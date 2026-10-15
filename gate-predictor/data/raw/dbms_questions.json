@@ -1,0 +1,254 @@
+[
+  {
+    "id": "dbms_practice_q01",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_er_relational_algebra",
+    "subtopic_id": "dbms_er_to_relational_mapping",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MCQ",
+    "marks": 1,
+    "difficulty": "easy",
+    "text": "An ER diagram has a strong entity set E and a weak entity set W. W is related to E through an identifying one-to-many relationship (total participation of W). Using the standard ER-to-relational mapping, what is the minimum number of relations needed to represent E, W and the identifying relationship?",
+    "options": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "answer": {
+      "key": ["B"]
+    },
+    "solution_text": "E becomes one relation. W becomes one relation whose primary key is the partial key of W plus the primary key of E. The identifying relationship is folded into the relation for W, so no separate relation is needed. Total = 2.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q02",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_normalization",
+    "subtopic_id": "dbms_bcnf_3nf",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MCQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Consider a relation R(A, B, C, D) with the functional dependencies F = {AB -> C, C -> D, D -> A}. What is the highest normal form of R?",
+    "options": {
+      "A": "1NF",
+      "B": "2NF",
+      "C": "3NF",
+      "D": "BCNF"
+    },
+    "answer": {
+      "key": ["C"]
+    },
+    "solution_text": "AB+ = {A, B, C, D}, so AB is a key. Since C -> D -> A, we get C+ = {C, D, A}. Hence CB and DB are also keys. Candidate keys: AB, BC, BD. So A, B, C, D are all prime attributes, and R is in 3NF. For C -> D, C is not a superkey (C+ does not contain B), so BCNF is violated. Highest normal form = 3NF.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q03",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_sql_joins",
+    "subtopic_id": "dbms_null_and_subqueries",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MCQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Table T(x) contains the values {1, 2, NULL}. Table S(y) contains the values {2, NULL}. What does the following query return?\n\nSELECT COUNT(*) FROM T WHERE x NOT IN (SELECT y FROM S);",
+    "options": {
+      "A": "0",
+      "B": "1",
+      "C": "2",
+      "D": "3"
+    },
+    "answer": {
+      "key": ["A"]
+    },
+    "solution_text": "x NOT IN (2, NULL) means x <> 2 AND x <> NULL. The comparison with NULL is always UNKNOWN. For x = 1: TRUE AND UNKNOWN = UNKNOWN. For x = 2: FALSE. For x = NULL: UNKNOWN. A row is returned only when the condition is TRUE, so no row qualifies and COUNT(*) = 0.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q04",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_transactions_concurrency",
+    "subtopic_id": "dbms_conflict_serializability",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MCQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Consider the schedule S of two transactions T1 and T2:\n\nS: r1(A) w1(A) r2(A) w2(A) r2(B) w2(B) r1(B) w1(B)\n\nWhich of the following is TRUE about S?",
+    "options": {
+      "A": "S is conflict serializable and equivalent to the serial schedule T1 followed by T2",
+      "B": "S is conflict serializable and equivalent to the serial schedule T2 followed by T1",
+      "C": "S is not conflict serializable",
+      "D": "S is conflict equivalent to both T1 -> T2 and T2 -> T1"
+    },
+    "answer": {
+      "key": ["C"]
+    },
+    "solution_text": "On item A, T1 operations come before T2 operations, giving the edge T1 -> T2. On item B, T2 operations come before T1 operations, giving the edge T2 -> T1. The precedence graph has a cycle, so S is not conflict serializable.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q05",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_indexing",
+    "subtopic_id": "dbms_b_plus_trees",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MCQ",
+    "marks": 1,
+    "difficulty": "easy",
+    "text": "Which of the following is a property of a B+ tree that distinguishes it from a B tree?",
+    "options": {
+      "A": "Record pointers are stored only in the leaf nodes, and the leaf nodes are linked together",
+      "B": "The tree need not be height balanced",
+      "C": "Internal nodes store a record pointer for every key they contain",
+      "D": "A search always terminates at an internal node"
+    },
+    "answer": {
+      "key": ["A"]
+    },
+    "solution_text": "In a B+ tree, all record (data) pointers are in the leaf nodes, and the leaves are chained as a linked list, which supports efficient range queries. Both B and B+ trees are height balanced. In a B+ tree, internal nodes hold only keys and child pointers, and a search always goes down to a leaf.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q06",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_er_relational_algebra",
+    "subtopic_id": "dbms_relational_algebra_equivalences",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MSQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Let R and S be union-compatible relations and let c be a selection condition. Which of the following equivalences are always TRUE?",
+    "options": {
+      "A": "σc(R ∪ S) = σc(R) ∪ σc(S)",
+      "B": "π_A(R − S) = π_A(R) − π_A(S)",
+      "C": "σc(R − S) = σc(R) − σc(S)",
+      "D": "π_A(R ∩ S) = π_A(R) ∩ π_A(S)"
+    },
+    "answer": {
+      "key": ["A", "C"]
+    },
+    "solution_text": "Selection distributes over union and over set difference, so A and C are true. Projection does not distribute over difference or intersection. Counter-example for B: R = {(1,2)}, S = {(1,3)}, A is the first attribute. Then R − S = {(1,2)}, so the LHS = {1}, but the RHS = {1} − {1} = empty. The same example breaks D: R ∩ S is empty, so the LHS is empty, but the RHS = {1}.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q07",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_normalization",
+    "subtopic_id": "dbms_decomposition_and_normal_forms",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MSQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Consider a relation R(A, B, C, D) with the functional dependencies F = {A -> B, B -> C, C -> D}. Which of the following statements are TRUE?",
+    "options": {
+      "A": "A is the only candidate key of R",
+      "B": "R is in 2NF",
+      "C": "R is in 3NF",
+      "D": "The decomposition {AB, BC, CD} is lossless-join"
+    },
+    "answer": {
+      "key": ["A", "B", "D"]
+    },
+    "solution_text": "A+ = {A, B, C, D}, and no other attribute set without A determines A, so A is the only candidate key (A is true). The key is a single attribute, so no partial dependency is possible and R is in 2NF (B is true). B -> C has a non-key LHS and a non-prime RHS, so R is not in 3NF (C is false). In the decomposition, AB and BC share B, which is a key of BC. Their join and CD share C, which is a key of CD. So the decomposition is lossless (D is true).",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q08",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_transactions_concurrency",
+    "subtopic_id": "dbms_2pl_and_timestamp_ordering",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "MSQ",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "Which of the following statements about concurrency control protocols are TRUE?",
+    "options": {
+      "A": "Strict 2PL ensures conflict serializability and cascadeless schedules",
+      "B": "Basic 2PL guarantees freedom from deadlock",
+      "C": "Basic timestamp ordering protocol ensures conflict serializability",
+      "D": "Basic timestamp ordering protocol guarantees freedom from cascading rollbacks"
+    },
+    "answer": {
+      "key": ["A", "C"]
+    },
+    "solution_text": "Strict 2PL holds exclusive locks until commit or abort, which gives conflict serializability and cascadeless schedules (A is true). Basic 2PL can deadlock (B is false). Timestamp ordering produces schedules equivalent to the serial order of timestamps, so it is conflict serializable (C is true). Basic timestamp ordering allows a transaction to read an uncommitted write, so cascading rollbacks can occur (D is false).",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q09",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_indexing",
+    "subtopic_id": "dbms_b_plus_trees",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "NAT",
+    "marks": 2,
+    "difficulty": "medium",
+    "text": "In a B+ tree, the block size is 1024 bytes, a search key is 8 bytes and a block pointer is 4 bytes. The internal node of order p holds at most p block pointers and (p - 1) keys. What is the maximum number of children (the order p) of an internal node?",
+    "options": null,
+    "answer": {
+      "val": 86,
+      "range": [86.0, 86.0]
+    },
+    "solution_text": "The internal node must satisfy 4p + 8(p - 1) <= 1024. This gives 12p <= 1032, so p <= 86. Maximum p = 86.",
+    "has_figure": false
+  },
+  {
+    "id": "dbms_practice_q10",
+    "subject_id": "dbms",
+    "classified_subject": "dbms",
+    "topic_id": "dbms_sql_joins",
+    "subtopic_id": "dbms_natural_join_cardinality",
+    "source": "practice",
+    "year": null,
+    "set_no": null,
+    "question_no": null,
+    "qtype": "NAT",
+    "marks": 1,
+    "difficulty": "easy",
+    "text": "Relation R(A, B) has 20 tuples, where A is the primary key. Relation S(A, C) has 30 tuples, where A is a NOT NULL foreign key referencing R(A). How many tuples are in the result of the natural join R ⋈ S?",
+    "options": null,
+    "answer": {
+      "val": 30,
+      "range": [30.0, 30.0]
+    },
+    "solution_text": "Every tuple of S has a non-null A value that matches exactly one tuple of R (A is the primary key of R). So each S tuple produces exactly one join tuple. Result size = 30.",
+    "has_figure": false
+  }
+]
